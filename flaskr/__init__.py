@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template
 
-from . import db, auth
+from . import db, auth, article
 
 
 def create_app(test_config=None):
@@ -20,12 +20,14 @@ def create_app(test_config=None):
     
     os.makedirs(app.instance_path, exist_ok=True)
 
-    @app.route("/")
-    def index():
-        return render_template("index.html")
+    # @app.route("/")
+    # def index():
+    #     return render_template("index.html")
     
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
-    
+    app.register_blueprint(article.bp)
+    app.add_url_rule("/", view_func=article.view_by_id)
+
     return app

@@ -57,11 +57,11 @@ def login():
         if error is None:
             session.clear()
             session["user_id"] = user["id"]
-            return redirect(url_for("index"))
+            return redirect(url_for("auth.index"))
     
         flash(error)
 
-        return render_template("auth/login.html")
+    return render_template("auth/login.html")
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -70,7 +70,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db.execute(
+        g.user = get_db().execute(
             "SELECT * FROM user WHERE id = ?", (user_id,)
         ).fetchone()
 
@@ -86,3 +86,14 @@ def login_required(view):
             return redirect(url_for("auth.login"))
         return view(**kwargs)
     return wrapped_view
+
+@bp.route("/index")
+@login_required
+def index():
+    db = get_db()
+    articles = db.execute(
+        "SELECT a.id, title, body, created, author_id, username"
+        " FROM article a JOIN user u ON a.author_id = u.id"
+        " ORDER BY created DESC"
+    ).fetchall()
+    return render_template("auth/index.html", articles=articles)

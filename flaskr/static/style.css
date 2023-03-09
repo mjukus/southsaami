@@ -113,6 +113,10 @@ a {
   text-decoration: none;
 }
 
+button {
+  margin-top: 1em;
+}
+
 cite {
   font-weight: var(--fw-semi-bold);
 }
@@ -347,6 +351,11 @@ footer a {
 .columns {
   display: grid;
   gap: 0;
+}
+
+form {
+  display: grid;
+  grid-auto-flow: row;
 }
 
 @media (min-width: 50em) {

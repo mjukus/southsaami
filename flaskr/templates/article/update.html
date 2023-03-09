@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">{% block title %}Edit "{{ article["title"] }}"{% endblock %}</h2>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="title">Title</label>
+    <input name="title" id="title"
+      value="{{ request.form['title'] or article['title'] }}" required>
+    <label for="body">Body</label>
+    <textarea name="body" id="body">{{ request.form["body"] or article["body"] }}</textarea>
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  <form action="{{ url_for('article.delete', id=article['id']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+{% endblock %}

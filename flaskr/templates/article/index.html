@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">{% block title %}{{ article["title"] }}{% endblock %}</h2>
+{% endblock %}
+
+{% block content %}
+  <p>{{ article["body"] }}</p>
+  <p><a href="#">Back to top</a></p>
+{% endblock %}
