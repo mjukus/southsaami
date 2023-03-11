@@ -1,0 +1,13 @@
+{% for page in articles %}
+    {% set title = page.title %}
+    {% if request.path.strip("/") in (title, page.id|string) %}
+    <li class="active">
+    {% elif request.path == "/" and page.id == 1 %}
+    <li class="active">
+    {%else%}
+    <li>
+    {% endif %}
+      <a href="{{ url_for('article.view_by_title', title=title) }}">{{ title }}</a>
+    </li>
+    {% block subnav %}{% endblock %}
+{% endfor %}

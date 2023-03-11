@@ -1,9 +1,11 @@
 import os
 
 from flask import Flask, render_template
+from flask_ckeditor import CKEditor
 
 from . import db, auth, article
 
+ckeditor = CKEditor()
 
 def create_app(test_config=None):
     # Create and configure the app
@@ -20,14 +22,20 @@ def create_app(test_config=None):
     
     os.makedirs(app.instance_path, exist_ok=True)
 
-    # @app.route("/")
-    # def index():
-    #     return render_template("index.html")
-    
-
     db.init_app(app)
+    ckeditor.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(article.bp)
     app.add_url_rule("/", view_func=article.view_by_id)
+
+    @app.context_processor  # Bit of a fudge to put it here
+    def get_articles():     # Unfortunately no nav at / otherwise
+        data = db.get_db()
+        articles = data.execute(
+            "SELECT a.id, title, body, created, author_id, username"
+            " FROM article a JOIN user u ON a.author_id = u.id"
+            " ORDER BY created ASC"
+        ).fetchall()
+        return {articles: articles}
 
     return app

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">
+    {% block mobile_locator %}{% block title %}{{ article["title"] }}{% endblock %}{% endblock %}
+  </h2>
+{% endblock %}
+
+{% block subnav %}
+{% endblock %}
+
+{% block content %}
+  <p>{{ article["body"]|safe }}</p>
+  <p><a href="#">Back to top</a></p>
+{% endblock %}

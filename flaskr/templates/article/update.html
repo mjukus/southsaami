@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block header %}
-  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">{% block title %}Edit "{{ article["title"] }}"{% endblock %}</h2>
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">
+    {% block mobile_locator %}{% block title %}Edit "{{ article["title"] }}"{% endblock %}{% endblock %}
+  </h2>
 {% endblock %}
 
 {% block content %}
@@ -10,11 +12,15 @@
     <input name="title" id="title"
       value="{{ request.form['title'] or article['title'] }}" required>
     <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form["body"] or article["body"] }}</textarea>
+    {{ ckeditor.create(value=article["body"]) }}
     <input type="submit" value="Save">
   </form>
   <hr>
   <form action="{{ url_for('article.delete', id=article['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+  {{ ckeditor.load() }}
+  {{ ckeditor.config(custom_config="entities_latin: false, "
+  "entities_greek: false, extraAllowedContent: '* span[lang]', "
+  "stylesSet: 'styles:/static/styles.js'") }}
 {% endblock %}

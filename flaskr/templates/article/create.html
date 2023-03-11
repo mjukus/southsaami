@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block header %}
-  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">{% block title %}New Article{% endblock %}</h2>
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">
+    {% block mobile_locator %}{% block title %}New Article{% endblock %}{% endblock %}
+  </h2>
 {% endblock %}
 
 {% block content %}
@@ -9,7 +11,11 @@
     <label for="title">Title</label>
     <input name="title" id="title" value="{{ request.form['title'] }}" required>
     <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form["body"] }}</textarea>
+    {{ ckeditor.create() }}
     <input type="submit" value="Save">
   </form>
+  {{ ckeditor.load() }}
+  {{ ckeditor.config(custom_config="entities_latin: false, "
+  "entities_greek: false, extraAllowedContent: '* span[lang]', "
+  "stylesSet: 'styles:/ckeditor/styles.js'") }}
 {% endblock %}

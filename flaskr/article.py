@@ -13,7 +13,7 @@ bp = Blueprint("article", __name__)
 def create():
     if request.method == "POST":
         title = request.form["title"]
-        body = request.form["body"]
+        body = request.form.get("ckeditor")
         error = None
 
         if not title:
@@ -29,9 +29,10 @@ def create():
                 (title, body, g.user["id"])
             )
             db.commit()
-            return redirect(url_for("auth.index"))
+            return redirect(url_for("article.index"))
     
     return render_template("article/create.html")
+
 
 def get_article(search, check_author=True):
     if type(search) is int:
@@ -66,15 +67,20 @@ def get_article(search, check_author=True):
 
     return article
 
-@bp.route("/<int:id>")
-def view_by_id(id=0):
-    article = get_article(id)
-    return render_template("article/index.html", article=article)
+@bp.route("/index")
+@login_required
+def index():
+    return render_template("article/index.html")
 
-@bp.route("/title>")
+@bp.route("/<int:id>")
+def view_by_id(id=1):
+    article = get_article(id)
+    return render_template("article/page.html", article=article)
+
+@bp.route("/<title>")
 def view_by_title(title):
     article = get_article(title)
-    return render_template("article/index.html", article=article)
+    return render_template("article/page.html", article=article)
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
@@ -83,7 +89,7 @@ def update(id):
 
     if request.method == "POST":
         title = request.form["title"]
-        body = request.form["body"]
+        body = request.form.get("ckeditor")
         error = None
 
         if not title:
@@ -99,7 +105,7 @@ def update(id):
                 (title, body, id)
             )
             db.commit()
-            return redirect(url_for("auth.index"))
+            return redirect(url_for("article.index"))
     
     return render_template("article/update.html", article=article)
 
@@ -110,4 +116,4 @@ def delete(id):
     db = get_db()
     db.execute("DELETE FROM article WHERE id = ?", (id,))
     db.commit()
-    return redirect(url_for("auth.index"))
+    return redirect(url_for("article.index"))

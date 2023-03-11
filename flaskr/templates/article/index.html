@@ -1,10 +1,23 @@
 {% extends "base.html" %}
 
 {% block header %}
-  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">{% block title %}{{ article["title"] }}{% endblock %}</h2>
+  <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">
+    {% block mobile_locator %}{% block title %}Articles{% endblock %}{% endblock %}
+  </h2>
 {% endblock %}
 
 {% block content %}
-  <p>{{ article["body"] }}</p>
-  <p><a href="#">Back to top</a></p>
+  <a href="{{ url_for('article.create') }}"><button class="action" type="button">New</button></a>
+  {% for article in articles %}
+    <div>
+      <a href="{{ url_for('article.view_by_id', id=article['id']) }}">
+        <h3 class="section-header" id="{{ article['title'] }}">{{ article["title"] }}</h3>
+      </a>
+      <div class="about">by {{ article['username'] }} on {{ article['created'].strftime('%Y-%m-%d') }}</div>
+    </div>
+    <a class="action" href="{{ url_for('article.update', id=article['id']) }}">Edit</a>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
 {% endblock %}

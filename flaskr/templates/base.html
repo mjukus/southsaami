@@ -15,32 +15,21 @@
   <div id="page-container">
     <header class="primary-header | bg-primary-400">
       <div class="container">
-          <h1 class="fs-900 fw-bold"><a href="#">South Saami</a></h1>
+          <h1 class="fs-900 fw-bold"><a href="/">South Saami</a></h1>
       </div>
     </header>
     <main>
       <div class="container">
         <div class="columns">
           <button class="mobile-nav-toggle" aria-controls="primary-navigation" aria-expanded="false">
-            <span class="nav-locator" aria-hidden="true">Introduction</span>
-            <img class="icon-hamburger" src="images/menu.svg" aria-hidden="true">
-            <img class="icon-close" src="images/x.svg" aria-hidden="true">
+            <span class="nav-locator" aria-hidden="true">{% block mobile_locator %}{% endblock %}</span>
+            <img class="icon-hamburger" src="{{ url_for('static', filename='menu.svg') }}" aria-hidden="true">
+            <img class="icon-close" src="{{ url_for('static', filename='x.svg') }}" aria-hidden="true">
             <span class="visually-hidden">Menu</span>
           </button>
           <nav class="primary-navigation">
             <ul role="list" class="nav-list" id="primary-navigation">
-              <li class="active"><a href="/">Introduction</a></li>
-              <li><a href="#">Fundamentals</a></li>
-              <li><a href="#">Nouns</a></li>
-              <li><a href="#">Pronouns</a></li>
-              <li><a href="#">Verbs</a></li>
-              <li><a href="#">Adjectives</a></li>
-              <li><a href="#">Numerals</a></li>
-              <li><a href="#">Adverbs</a></li>
-              <li><a href="#">Prepositions and Postpositions</a></li>
-              <li><a href="#">Conjunctions</a></li>
-              <li><a href="#">Particles</a></li>
-              <li><a href="#">Interjections</a></li>
+              {% include "_navigation.html" %}
             </ul>
           </nav>
           <article class="flow">
@@ -66,4 +55,5 @@
       </div>
   </footer>
   </div>
+  <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
