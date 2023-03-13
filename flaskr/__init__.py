@@ -1,11 +1,10 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask
 from flask_ckeditor import CKEditor
+from flask_wtf.csrf import CSRFProtect
 
 from . import db, auth, article
-
-ckeditor = CKEditor()
 
 def create_app(test_config=None):
     # Create and configure the app
@@ -14,6 +13,8 @@ def create_app(test_config=None):
         SECRET_KEY="dev",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite")
     )
+    ckeditor = CKEditor()
+    csrf = CSRFProtect()
 
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)
@@ -24,6 +25,7 @@ def create_app(test_config=None):
 
     db.init_app(app)
     ckeditor.init_app(app)
+    csrf.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(article.bp)
     app.add_url_rule("/", view_func=article.view_by_id)
@@ -32,10 +34,10 @@ def create_app(test_config=None):
     def get_articles():     # Unfortunately no nav at / otherwise
         data = db.get_db()
         articles = data.execute(
-            "SELECT a.id, title, body, created, author_id, username"
+            "SELECT a.id, title, body, image_file, caption, created, author_id, username"
             " FROM article a JOIN user u ON a.author_id = u.id"
             " ORDER BY created ASC"
         ).fetchall()
-        return {articles: articles}
+        return {"articles": articles}
 
     return app

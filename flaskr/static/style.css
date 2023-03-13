@@ -117,10 +117,7 @@ button {
   margin-top: 1em;
 }
 
-textarea {
-  width: 500px;
-  min-height: 400px;
-}
+
 
 cite {
   font-weight: var(--fw-semi-bold);

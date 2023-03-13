@@ -1,43 +1,35 @@
+import os
+
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, current_app, flash, g, redirect, render_template, request, url_for
 )
+from flask_ckeditor import CKEditorField
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
 
 bp = Blueprint("article", __name__)
 
-@bp.route("/create", methods=("GET", "POST"))
-@login_required
-def create():
-    if request.method == "POST":
-        title = request.form["title"]
-        body = request.form.get("ckeditor")
-        error = None
 
-        if not title:
-            error = "Title is required."
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                "INSERT INTO article (title, body, author_id)"
-                " VALUES (?, ?, ?)",
-                (title, body, g.user["id"])
-            )
-            db.commit()
-            return redirect(url_for("article.index"))
-    
-    return render_template("article/create.html")
-
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    body = CKEditorField("Body")
+    image = FileField("Image", validators=[
+        FileAllowed(["jpg", "png", "gif", "svg"], "Images only!")
+    ])
+    caption = CKEditorField("Caption")
+    submit = SubmitField("Save")
 
 def get_article(search, check_author=True):
     if type(search) is int:
         article = get_db().execute(
-            "SELECT a.id, title, body, created, author_id, username"
+            "SELECT a.id, title, body, image_file, caption, created, author_id, username"
             " FROM article a JOIN user u on a.author_id = u.id"
             " WHERE a.id = ?",
             (search,)
@@ -47,7 +39,7 @@ def get_article(search, check_author=True):
     elif type(search) is str:
         processed_search = search.replace("%20", " ")
         article = get_db().execute(
-            "SELECT a.id, title, body, created, author_id, username"
+            "SELECT a.id, title, body, image_file, caption, created, author_id, username"
             " FROM article a JOIN user u on a.author_id = u.id"
             " WHERE a.title = ?",
             (processed_search,)
@@ -82,32 +74,79 @@ def view_by_title(title):
     article = get_article(title)
     return render_template("article/page.html", article=article)
 
+@bp.route("/create", methods=("GET", "POST"))
+@login_required
+def create():
+    form = PostForm()
+
+    if form.validate_on_submit():
+        title = form.title.data
+        body = form.body.data
+        image = form.image.data
+        if image:
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(
+            current_app.instance_path, 'images', filename
+        ))
+        caption = form.caption.data
+
+        db = get_db()
+        db.execute(
+            "INSERT INTO article (title, body, image_file, caption, author_id)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (title, body, image, caption, g.user["id"])
+        )
+        db.commit()
+        return redirect(url_for("article.index"))
+    
+    else:
+        if form.errors:
+            for error in form.errors:
+              current_app.logger.error("An error occurred during validation: %s", error)
+              flash(error)
+        else:
+            current_app.logger.error("Request method is not post.")
+
+    return render_template("article/create.html", form=form)
+
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
     article = get_article(id)
+    form = PostForm()
+    form.body.data = article["body"]
+    form.image.data = article["image_file"]
+    form.caption.data = article["caption"]
 
-    if request.method == "POST":
-        title = request.form["title"]
-        body = request.form.get("ckeditor")
-        error = None
+    if form.validate_on_submit():
+        title = form.title.data
+        body = form.body.data
+        image = form.image.data
+        if image:
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(
+            current_app.instance_path, 'images', filename
+        ))
+        caption = form.caption.data
 
-        if not title:
-            error = "Title is required."
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                "UPDATE article SET title = ?, body = ?"
-                " WHERE id = ?",
-                (title, body, id)
-            )
-            db.commit()
-            return redirect(url_for("article.index"))
+        db = get_db()
+        db.execute(
+            "UPDATE article SET title = ?, body = ?, image_file = ?, caption = ?"
+            " WHERE id = ?",
+            (title, body, image, caption, id)
+        )
+        db.commit()
+        return redirect(url_for("article.index"))
     
-    return render_template("article/update.html", article=article)
+    else:
+        if form.errors:
+            for error in form.errors:
+              current_app.logger.error("An error occurred during validation: %s", error)
+              flash(error)
+        else:
+            current_app.logger.error("Request method is not post.")
+    
+    return render_template("article/update.html", article=article, form=form)
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

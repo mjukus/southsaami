@@ -8,6 +8,6 @@ setup(
     install_requires=[
         "flask",
         "flask-ckeditor",
-        "WTForms",  # Other ckeditor doesn't work, even though it isn't used.
+        "flask-WTF"
     ],
 )

@@ -7,20 +7,26 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title"
-      value="{{ request.form['title'] or article['title'] }}" required>
-    <label for="body">Body</label>
-    {{ ckeditor.create(value=article["body"]) }}
-    <input type="submit" value="Save">
+
+  <form method="post" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    {{ form.title.label }} {{ form.title() }}
+    {{ form.body.label }} {{ form.body() }}
+    {{ form.image.label }} {{ form.image() }}
+    {{ form.caption.label }} {{ form.caption() }}
+    {{ form.submit() }}
   </form>
   <hr>
   <form action="{{ url_for('article.delete', id=article['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+
   {{ ckeditor.load() }}
-  {{ ckeditor.config(custom_config="entities_latin: false, "
+  {{ ckeditor.config(name="body", custom_config="entities_latin: false, "
   "entities_greek: false, extraAllowedContent: '* span[lang]', "
-  "stylesSet: 'styles:/static/styles.js'") }}
+  "stylesSet: 'styles:/static/styles.js'", height=500) }}
+  {{ ckeditor.config(name="caption", custom_config="entities_latin: false, "
+  "entities_greek: false, extraAllowedContent: '* span[lang]', "
+  "stylesSet: 'styles:/static/styles.js'", height=100) }}
+
 {% endblock %}
