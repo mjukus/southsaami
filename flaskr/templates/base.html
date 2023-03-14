@@ -13,10 +13,11 @@
 
 <body>
   <div id="page-container">
-    <header class="primary-header | bg-primary-400">
-      <div class="container">
-          <h1 class="fs-900 fw-bold"><a href="/">South Saami</a></h1>
-      </div>
+    <header class="primary-header | bg-primary-400 | columns">
+      <h1 class="fs-900 fw-bold"><a href="/">South Saami</a></h1>
+      {% if g.user %}
+        <a class="right-centred-in-columns" href="{{ url_for('auth.logout') }}">Log Out</a>
+      {% endif %}
     </header>
     <main>
       <div class="container">
@@ -33,10 +34,18 @@
             </ul>
           </nav>
           <article class="flow">
-            {% block header %}{% endblock %}
-            {% for message in get_flashed_messages() %}
-              <div class="flash">{{ message }}</div>
-            {% endfor %}
+            <div class="columns">
+              {% block header %}{% endblock %}
+            </div>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class="flashes">
+                {% for message in messages %}
+                   <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
             {% block content %}{% endblock %}
           </article>
           <div class="image">

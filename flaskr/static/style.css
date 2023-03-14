@@ -117,11 +117,6 @@ button {
   margin-top: 1em;
 }
 
-textarea {
-  width: 500px;
-  min-height: 400px;
-}
-
 cite {
   font-weight: var(--fw-semi-bold);
 }
@@ -148,7 +143,6 @@ table, th, td {
 
 .primary-header {
   padding: var(--size-200);
-  height: 70px;
 }
 
 .primary-header a {
@@ -370,7 +364,11 @@ form {
 
   .columns {
     grid-auto-flow: column;
-    justify-content: left;
     gap: var(--size-400);
+  }
+
+  .right-centred-in-columns {
+    justify-self: right;
+    align-self: center;
   }
 }

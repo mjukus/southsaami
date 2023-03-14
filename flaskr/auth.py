@@ -3,19 +3,32 @@ import functools
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from flask_wtf import FlaskForm
 from werkzeug.security import check_password_hash
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import DataRequired
 
 from flaskr.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+
+class LoginForm(FlaskForm):
+    username = StringField(validators=[DataRequired()])
+    password = PasswordField(validators=[DataRequired()])
+    submit = SubmitField("Login")
+
+
 @bp.route("/login", methods=("GET", "POST"))
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        db = get_db()
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
         error = None
+
+        db = get_db()
         user = db.execute(
             "SELECT * FROM user WHERE username = ?", (username,)
         ).fetchone()
@@ -28,11 +41,9 @@ def login():
         if error is None:
             session.clear()
             session["user_id"] = user["id"]
-            return redirect(url_for("auth.index"))
-    
-        flash(error)
-
-    return render_template("auth/login.html")
+            return redirect(url_for("article.index"))
+        
+    return render_template("auth/login.html", form=form)
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -48,7 +59,7 @@ def load_logged_in_user():
 @bp.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("index"))
+    return redirect("/")
 
 def login_required(view):
     @functools.wraps(view)

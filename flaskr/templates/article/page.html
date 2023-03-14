@@ -4,12 +4,23 @@
   <h2 class="secondary-header | fs-700 fw-semi-bold text-neutral-900">
     {% block mobile_locator %}{% block title %}{{ article["title"] }}{% endblock %}{% endblock %}
   </h2>
+  {% if g.user %}
+    <a class="right-centred-in-columns" href="{{ url_for('article.update', id=article.id) }}">Edit</a>
+  {% endif %}
 {% endblock %}
 
 {% block subnav %}
 {% endblock %}
 
 {% block content %}
-  <p>{{ article["body"]|safe }}</p>
+  {{ article["body"]|safe }}
   <p><a href="#">Back to top</a></p>
+{% endblock %}
+
+{% block image %}
+  {% if article.image %}
+    <a href="{{ url_for('article.get_image', filename=article.image) }}" title="Enlarge">
+      <img src="{{ url_for('article.get_image', filename=article.image) }}" alt=""></a>
+    {{ article["caption"]|safe }}
+  {% endif %}
 {% endblock %}
