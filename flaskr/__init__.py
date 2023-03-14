@@ -4,14 +4,15 @@ from flask import Flask
 from flask_ckeditor import CKEditor
 from flask_wtf.csrf import CSRFProtect
 
-from . import db, auth, article
+from . import auth, article, db
 
 def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY="dev",
-        DATABASE=os.path.join(app.instance_path, "flaskr.sqlite")
+        DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
+        UPLOAD_FOLDER=os.path.join("/static/images/")
     )
     ckeditor = CKEditor()
     csrf = CSRFProtect()
@@ -34,7 +35,7 @@ def create_app(test_config=None):
     def get_articles():     # Unfortunately no nav at / otherwise
         data = db.get_db()
         articles = data.execute(
-            "SELECT a.id, title, body, image_file, caption, created, author_id, username"
+            "SELECT a.id, title, body, image, caption, created, author_id, username"
             " FROM article a JOIN user u ON a.author_id = u.id"
             " ORDER BY created ASC"
         ).fetchall()

@@ -12,12 +12,13 @@
     {{ form.csrf_token }}
     {{ form.title.label }} {{ form.title() }}
     {{ form.body.label }} {{ form.body() }}
-    {{ form.image.label }} {{ form.image() }}
+    {{ form.image.label }} {{ form.image(label="Select file") }}
     {{ form.caption.label }} {{ form.caption() }}
     {{ form.submit() }}
   </form>
   <hr>
   <form action="{{ url_for('article.delete', id=article['id']) }}" method="post">
+    {{ form.csrf_token }}
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
 
