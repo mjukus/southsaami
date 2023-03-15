@@ -1,7 +1,7 @@
 import os
 
 from flask import (
-    Blueprint, current_app, flash, g, redirect, render_template, url_for, send_from_directory
+    Blueprint, current_app, flash, g, redirect, render_template, request, url_for, send_from_directory
 )
 from flask_ckeditor import CKEditorField
 from flask_wtf import FlaskForm
@@ -85,20 +85,27 @@ def create():
         title = form.title.data
         body = form.body.data
         image = form.image.data
+        caption = form.caption.data
         if image:
             filename = secure_filename(image.filename)
             image.save(os.path.join(
                 current_app.instance_path, filename
             ))
-        caption = form.caption.data
-
-        db = get_db()
-        db.execute(
-            "INSERT INTO article (title, body, image, caption, author_id)"
-            " VALUES (?, ?, ?, ?, ?)",
-            (title, body, filename, caption, g.user["id"])
-        )
-        db.commit()
+            db = get_db()
+            db.execute(
+                "INSERT INTO article (title, body, image, caption, author_id)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (title, body, filename, caption, g.user["id"])
+            )
+            db.commit()
+        else:
+            db = get_db()
+            db.execute(
+                "INSERT INTO article (title, body, caption, author_id)"
+                " VALUES (?, ?, ?, ?)",
+                (title, body, caption, g.user["id"])
+            )
+            db.commit()
         return redirect(url_for("article.index"))
     
     else:
@@ -116,9 +123,6 @@ def create():
 def update(id):
     article = get_article(id)
     form = PostForm()
-    form.title.data = article["title"]
-    form.body.data = article["body"]
-    form.caption.data = article["caption"]
 
     if form.validate_on_submit():
         db = get_db()
@@ -152,8 +156,11 @@ def update(id):
             for error in form.errors:
                 current_app.logger.error("An error occurred during validation: %s", error)
                 flash(error)
-        else:
-            current_app.logger.error("Request method is not post.")
+        elif request.method == "GET":
+            form.title.data = article["title"]
+            form.body.data = article["body"]
+            form.caption.data = article["caption"]
+
     
     return render_template("article/update.html", article=article, form=form)
 
@@ -167,7 +174,7 @@ def delete(id):
                 current_app.instance_path, article["image"]
             ))
         except IOError as e:
-            current_app.logger.exception("No such file %", e)
+            raise e
     db = get_db()
     db.execute("DELETE FROM article WHERE id = ?", (id,))
     db.commit()
