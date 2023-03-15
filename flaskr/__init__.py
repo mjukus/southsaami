@@ -42,3 +42,5 @@ def create_app(test_config=None):
         return {"articles": articles}
 
     return app
+
+app = create_app()
