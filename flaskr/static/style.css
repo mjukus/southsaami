@@ -364,6 +364,7 @@ form {
 
   .columns {
     grid-auto-flow: column;
+    justify-content: left;
     gap: var(--size-400);
   }
 
