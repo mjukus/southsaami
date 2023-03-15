@@ -364,8 +364,11 @@ form {
 
   .columns {
     grid-auto-flow: column;
-    justify-content: left;
     gap: var(--size-400);
+  }
+
+  main .columns {
+    justify-self: left;
   }
 
   .right-centred-in-columns {
